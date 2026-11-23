@@ -1,0 +1,187 @@
+/* OneKey Hub – prevádzková konzola: prehľadný dizajn pre živú prezentáciu.
+   Farby: tmavosivá, biela a zelená OneKey. */
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: inherit; }
+p { margin: 0; }
+table { border-collapse: collapse; width: 100%; }
+th { text-align: left; font-weight: 600; }
+.mono { font-family: 'Cascadia Mono', Consolas, monospace; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.strong { font-weight: 600; }
+.fields { display: grid; gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.field.wide { grid-column: 1 / -1; }
+.kv { margin: 0; }
+.kv dd { margin: 0; }
+.violations { margin: 0; padding: 0; list-style: none; }
+.launch { list-style: none; margin: 0; padding: 0; }
+.launch a { text-decoration: none; display: flex; flex-direction: column; }
+.actions { display: flex; gap: 12px; align-items: center; }
+.presets { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; }
+.row-action { text-align: right; }
+.btn:disabled { opacity: 0.6; cursor: wait; }
+.toast { position: fixed; z-index: 40; }
+
+.app { --ink: #26292d; --ink-2: #3b4046; --muted: #6c7177; --line: #dde0e3; --line-2: #eceef0; --tint: #f6f7f8;
+  --green: #1e7b4f; --green-2: #25935f; --green-tint: #e8f4ee; --red: #b42318; --red-tint: #fef3f2;
+  min-height: 100vh; display: grid; grid-template-columns: 230px minmax(0, 1fr); background: #fff; color: var(--ink); font-size: 13.5px; line-height: 1.45; }
+.app.loading { display: block; padding: 32px; color: var(--muted); }
+
+.app .bar { background: var(--ink); color: #fff; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; padding: 20px 0 16px; }
+.app .brand { text-decoration: none; font-weight: 700; font-size: 15.5px; padding: 0 20px 20px; display: flex; flex-direction: column; gap: 2px; }
+.app .brand .env { font-weight: 400; font-size: 12px; color: #a3a8ad; }
+.app .nav { display: flex; flex-direction: column; }
+.app .nav a { text-decoration: none; color: #c3c7cb; padding: 9px 20px; border-left: 3px solid transparent; }
+.app .nav a:hover { color: #fff; background: #2f3337; }
+.app .nav a.active { color: #fff; background: var(--ink-2); font-weight: 600; border-left-color: #3aa873; }
+.app .status { margin-top: auto; display: flex; flex-direction: column; gap: 8px; padding: 14px 20px 0; border-top: 1px solid var(--ink-2); font-size: 12px; color: #a3a8ad; }
+.app .stat { display: flex; justify-content: space-between; }
+.app .stat .v { color: #fff; font-variant-numeric: tabular-nums; }
+.app .live::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #6c7177; margin-right: 8px; vertical-align: 1px; }
+.app .live.on { color: #fff; }
+.app .live.on::before { background: #3aa873; }
+.app .reset { margin-top: 4px; background: none; color: #fff; border: 1px solid #4a5056; border-radius: 4px; padding: 6px 10px; }
+.app .reset:hover { border-color: #8d9298; background: #33383d; }
+
+.app .main { padding: 24px 32px 56px; max-width: 1240px; }
+.app .head { border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 20px; }
+.app .head-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.app .arch-tag { font-size: 12px; color: var(--green); background: var(--green-tint); padding: 3px 10px; border-radius: 999px; font-weight: 600; }
+.app h1 { font-size: 21px; font-weight: 600; margin: 0; }
+.app .head p { color: var(--muted); margin-top: 4px; }
+.app h2 { font-size: 14px; font-weight: 600; margin: 0 0 12px; }
+
+.app .field-label { font-size: 12px; color: var(--muted); }
+.app select, .app input { height: 34px; border: 1px solid var(--line); border-radius: 4px; padding: 0 9px; background: #fff; }
+.app select:focus, .app input:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 1px var(--green); }
+.app .btn.primary { background: var(--green); color: #fff; border: 0; border-radius: 4px; padding: 8px 16px; font-weight: 600; }
+.app .btn.primary:hover { background: var(--green-2); }
+.app .btn.text { background: none; border: 0; padding: 0; color: var(--green); font-weight: 600; }
+.app .btn.text:hover { text-decoration: underline; }
+
+.app .tbl th { font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--line); padding: 7px 10px; white-space: nowrap; }
+.app .tbl td { border-bottom: 1px solid var(--line-2); padding: 7px 10px; vertical-align: middle; }
+.app .tbl tbody tr:hover td { background: var(--tint); }
+.app .token-sub { display: block; font-size: 11px; color: var(--muted); margin-top: 1px; }
+.app .empty { color: var(--muted); }
+.app .placeholder { color: var(--muted); }
+.app .note { color: var(--muted); font-size: 12px; }
+
+/* Kroky procesu 1.0 Charge Member Driver na stránke CPO */
+.app .steps { list-style: none; margin: 0 0 16px; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.app .steps li { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 5px; background: var(--tint); }
+.app .steps li strong { display: block; font-size: 13px; }
+.app .steps li span { font-size: 12px; color: var(--muted); }
+.app .steps .step-num { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: #fff; border: 1px solid var(--line); font-weight: 700; font-size: 12px; color: var(--ink); flex: none; }
+.app .steps li.current { border-color: var(--green); background: #fff; }
+.app .steps li.current .step-num { border-color: var(--green); color: var(--green); }
+.app .steps li.done { border-color: var(--green); background: var(--green-tint); }
+.app .steps li.done .step-num { background: var(--green); border-color: var(--green); color: #fff; }
+.app .steps li.fail { border-color: var(--red); background: var(--red-tint); }
+.app .steps li.fail .step-num { background: var(--red); border-color: var(--red); color: #fff; }
+
+/* CPO: vstupy vľavo, odpovede hubu vpravo */
+.app .cpo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "control auth" "session cdr"; border: 1px solid var(--line); border-radius: 5px; overflow: hidden; }
+.app .cpo .control { grid-area: control; }
+.app .cpo .auth { grid-area: auth; }
+.app .cpo .session { grid-area: session; border-top: 1px solid var(--line); }
+.app .cpo .cdr { grid-area: cdr; border-top: 1px solid var(--line); }
+.app .cpo .block { padding: 16px 18px; }
+.app .cpo .auth, .app .cpo .cdr { background: var(--tint); border-left: 1px solid var(--line); }
+.app .cpo .fields { grid-template-columns: 1fr 1fr; margin-bottom: 14px; }
+.app .presets { margin-bottom: 14px; font-size: 12.5px; }
+.app .presets-label { color: var(--muted); }
+.app .verdict-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.app .verdict-title::before { content: ''; width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.app .verdict.ok .verdict-title { color: var(--green); }
+.app .verdict.ok .verdict-title::before { background: var(--green); }
+.app .verdict.no .verdict-title { color: var(--red); }
+.app .verdict.no .verdict-title::before { background: var(--red); }
+.app .verdict-text { margin: 6px 0 10px; }
+.app .route-pill { display: inline-block; font-size: 12px; background: #fff; border: 1px solid var(--line); border-radius: 4px; padding: 4px 9px; margin-bottom: 12px; color: var(--ink-2); }
+.app .kv { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; font-size: 12.5px; border-top: 1px solid var(--line); padding-top: 10px; }
+.app .kv div { display: contents; }
+.app .kv dt { color: var(--muted); }
+.app .kv dd.num { text-align: left; }
+.app .violations { margin: 6px 0 6px; }
+.app .violations li { padding: 4px 0; color: var(--red); font-weight: 500; }
+
+/* eMSP: jeden blok na backend */
+.app .emsps { display: grid; gap: 16px; }
+.app .legend-bar { background: var(--tint); border: 1px solid var(--line); border-radius: 5px; padding: 10px 14px; font-size: 12.5px; color: var(--ink-2); }
+.app .legend-bar em { font-style: normal; font-weight: 600; color: var(--ink); }
+.app .backend { border: 1px solid var(--line); border-radius: 5px; overflow: hidden; }
+.app .backend-onekey { border-color: var(--green); }
+.app .backend-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 14px; background: var(--tint); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.app .backend-onekey .backend-head { background: var(--green-tint); }
+.app .backend-name { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.app .backend-name h2 { margin: 0; font-size: 14.5px; }
+.app .backend .actions { padding: 10px 14px; }
+.app .tokens td:first-child, .app .tokens th:first-child { padding-left: 14px; }
+.app .flag { background: var(--red); color: #fff; font-size: 11.5px; padding: 1px 7px; border-radius: 3px; font-weight: 600; }
+.app .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; background: #fff; }
+.app .seg button { border: 0; background: none; padding: 5px 12px; font-size: 12.5px; color: var(--muted); }
+.app .seg button + button { border-left: 1px solid var(--line); }
+.app .seg button[aria-pressed='true'] { background: var(--ink); color: #fff; font-weight: 600; }
+.app .seg button[aria-pressed='true'][data-mode='online'] { background: var(--green); }
+.app .seg button[aria-pressed='true'][data-mode='offline'] { background: var(--red); }
+.app .tog { border: 0; border-radius: 4px; padding: 3px 10px; font-size: 12.5px; font-weight: 600; }
+.app .tog.ok { background: var(--green-tint); color: var(--green); }
+.app .tog.no { background: var(--red-tint); color: var(--red); border: 1px solid #f5c2c0; }
+.app .wl-yes { color: var(--green); font-weight: 500; }
+.app .wl-no { color: var(--muted); }
+
+/* Hub */
+.app .hub { display: grid; gap: 24px; }
+.app .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.app .kpi { border: 1px solid var(--line); border-radius: 5px; padding: 12px 14px; background: var(--tint); display: flex; flex-direction: column; gap: 4px; }
+.app .kpi-label { font-size: 12px; color: var(--muted); }
+.app .kpi-val { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.app .hub .actions { margin-top: 12px; }
+.app .state { font-size: 12.5px; font-weight: 600; }
+.app .state.active { color: var(--green); }
+.app .state.suspended, .app .state.rejected { color: var(--red); }
+.app .pos { color: var(--green); }
+.app .neg { color: var(--red); }
+.app .total td { background: var(--tint); font-weight: 600; }
+.app .invariant { margin: 12px 0 4px; font-weight: 600; }
+.app .invariant.ok { color: var(--green); }
+.app .invariant.no { color: var(--red); }
+
+/* Úvod */
+.app .home h1 { margin-bottom: 6px; }
+.app .lede { color: var(--muted); max-width: 720px; margin-bottom: 20px; }
+.app .flow-banner { display: flex; align-items: center; gap: 12px; max-width: 860px; margin-bottom: 24px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--tint); }
+.app .flow-node { flex: 1; background: #fff; border: 1px solid var(--line); border-radius: 5px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+.app .flow-node.flow-hub { border-color: var(--green); background: var(--green-tint); }
+.app .flow-step { font-size: 11px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: 0.03em; }
+.app .flow-node span:last-child { font-size: 12px; color: var(--muted); }
+.app .flow-arrow { font-size: 20px; color: var(--green); font-weight: 700; flex: none; }
+
+.app .launch { border-top: 1px solid var(--line); max-width: 860px; }
+.app .launch a { display: grid; grid-template-columns: 155px 1fr auto; grid-template-areas: "label title open" "label text open"; column-gap: 20px; padding: 16px 12px; border-bottom: 1px solid var(--line); }
+.app .launch a:hover { background: var(--tint); }
+.app .launch-label { grid-area: label; font-weight: 600; color: var(--ink); }
+.app .launch-title { grid-area: title; font-weight: 600; display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
+.app .launch-arch { font-size: 11.5px; font-weight: 500; color: var(--green); background: var(--green-tint); padding: 1px 7px; border-radius: 999px; }
+.app .launch-text { grid-area: text; color: var(--muted); margin-top: 2px; }
+.app .launch-open { grid-area: open; align-self: center; color: var(--green); font-weight: 600; white-space: nowrap; }
+
+.app .toast { right: 20px; bottom: 20px; background: var(--ink); color: #fff; padding: 9px 14px; border-radius: 4px; font-size: 13px; box-shadow: 0 4px 14px rgba(0,0,0,0.18); }
+
+@media (max-width: 960px) {
+  .app { grid-template-columns: 1fr; }
+  .app .bar { position: static; height: auto; }
+  .app .steps { grid-template-columns: 1fr; }
+  .app .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .app .flow-banner { flex-direction: column; align-items: stretch; }
+  .app .flow-arrow { text-align: center; }
+  .app .cpo { grid-template-columns: 1fr; grid-template-areas: none; }
+  .app .cpo > * { grid-area: auto; }
+  .app .cpo .auth, .app .cpo .cdr { border-left: 0; border-top: 1px solid var(--line); }
+}

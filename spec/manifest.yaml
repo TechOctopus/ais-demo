@@ -1,0 +1,63 @@
+# SDD manifest – OneKey prototyp (výrez: Authorization → CDR → Settlement)
+# Cesty sa počítajú od koreňa priečinka prototype/.
+specification:
+  version: "0.1.0"
+  status: "approved"         # mení človek pri review – schválil tím projektu 2026-11-17
+  architecture_baseline: "B-01"   # ais.qea; obrázky views znova exportované 2026-11-17 z aktualizovaného modelu (28 diagramov)
+  ai_rules_version: "4.0"
+  change: "CH-01 Roaming session end-to-end (R-01 až R-08)"
+
+governance:
+  ai_rules: "AGENTS.md"
+
+authoritative:
+  architecture_model: null   # model zostáva v Sparx EA u tímu (../ais.qea)
+  glossary: "spec/glossary.md"
+  requirements: "spec/requirements/requirements.yaml"
+  business_rules: "spec/requirements/business-rules.yaml"
+  quality_requirements: "spec/requirements/quality-requirements.yaml"
+  actors_processes: "spec/business/actors-processes.yaml"
+  business_scenarios: "spec/business/scenarios/"
+  components: "spec/application/components.yaml"
+  service_realization: "spec/application/service-realization.yaml"
+  interactions: "spec/application/interactions.yaml"
+  data_objects: "spec/application/data-objects.yaml"
+  lifecycles: "spec/application/lifecycles.yaml"
+  technology_context: "spec/technology/technology-context.yaml"
+  deployment: "spec/technology/deployment.yaml"
+  contract_design_profile: "spec/policies/contract-design-profile.yaml"
+  stories: "spec/stories/"
+  scenarios: "spec/stories/features/"
+  approved_contracts: "spec/contracts/approved/"
+  traceability: "spec/traceability/traceability.yaml"
+  reuse_catalog: "spec/architecture/continuum/reuse-catalog.yaml"
+  implementation_context: "spec/architecture/migration/implementation-context.yaml"
+  gap_analysis: "spec/architecture/migration/gap-analysis.md"
+
+supporting:
+  architecture_views:
+    - { path: "spec/architecture/views/B-01-motivation.png",                 viewpoint: "Motivation",              model_baseline: "B-01", status: "approved", reviewed_by: "tím projektu 2026-11-17" }
+    - { path: "spec/architecture/views/B-01-solution-concept.png",           viewpoint: "Solution Concept (TOGAF)", model_baseline: "B-01", status: "approved", reviewed_by: "tím projektu 2026-11-17" }
+    - { path: "spec/architecture/views/B-01-business-process-to-be.png",     viewpoint: "Business Process",        model_baseline: "B-01", status: "approved", reviewed_by: "tím projektu 2026-11-17" }
+    - { path: "spec/architecture/views/B-01-service-realization-to-be.png",  viewpoint: "Service Realization",     model_baseline: "B-01", status: "approved", reviewed_by: "tím projektu 2026-11-17" }
+    - { path: "spec/architecture/views/B-01-application-usage-to-be.png",    viewpoint: "Application Usage",       model_baseline: "B-01", status: "approved", reviewed_by: "tím projektu 2026-11-17" }
+    - { path: "spec/architecture/views/B-01-application-structure-to-be.png", viewpoint: "Application Structure",  model_baseline: "B-01", status: "approved", reviewed_by: "tím projektu 2026-11-17" }
+    - { path: "spec/architecture/views/B-01-application-cooperation-to-be.png", viewpoint: "Application Cooperation", model_baseline: "B-01", status: "approved", reviewed_by: "tím projektu 2026-11-17" }
+    - { path: "spec/architecture/views/B-01-information-structure-to-be.png", viewpoint: "Information Structure",  model_baseline: "B-01", status: "approved", reviewed_by: "tím projektu 2026-11-17" }
+    - { path: "spec/architecture/views/B-01-technology-to-be.png",           viewpoint: "Technology",              model_baseline: "B-01", status: "approved", reviewed_by: "tím projektu 2026-11-17" }
+    - { path: "spec/architecture/views/B-01-technology-usage-to-be.png",     viewpoint: "Technology Usage",        model_baseline: "B-01", status: "approved", reviewed_by: "tím projektu 2026-11-17" }
+    - { path: "spec/architecture/views/B-01-deployment-to-be.png",           viewpoint: "Implementation and Deployment", model_baseline: "B-01", status: "approved", reviewed_by: "tím projektu 2026-11-17" }
+    - { path: "spec/architecture/views/B-01-layered.png",                    viewpoint: "Layered",                 model_baseline: "B-01", status: "approved", reviewed_by: "tím projektu 2026-11-17" }
+    - { path: "spec/architecture/views/B-01-implementation-migration.png",   viewpoint: "Implementation and Migration", model_baseline: "B-01", status: "approved", reviewed_by: "tím projektu 2026-11-17" }
+  architecture_context: "spec/architecture/context/architecture-context.yaml"   # ručný súhrn, nie export
+
+working:
+  proposed_contracts: "spec/contracts/proposed/"
+  specification_drafts: "spec/drafts/"
+  prompts: "spec/prompts/"
+  reports: "reports/"
+
+realization:
+  code: "src/"
+  configuration: "config/"
+  tests: "tests/"

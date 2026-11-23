@@ -1,0 +1,113 @@
+business_rules:
+  - id: "BR-01"
+    title: "Real-time odpoveď eMSP má prednosť pred Whitelistom"
+    type: "rule"
+    statement: >
+      Ak eMSP odpovie včas, rozhoduje jeho odpoveď. Token, ktorý eMSP v reálnom čase odmietne,
+      Hub odmietne aj vtedy, ak je na Whiteliste.
+    owner: "BA-Hub"
+    source: "pravidlá projektu"
+    requirements: ["R-01", "R-02"]
+    scenarios: ["SC-01-02"]
+
+  - id: "BR-02"
+    title: "Whitelist iba pri neodpovedajúcom eMSP"
+    type: "rule"
+    statement: >
+      Whitelist sa použije iba vtedy, keď eMSP neodpovie do 2 s (konfigurovateľné) alebo je nedostupný.
+      Token, ktorý na Whiteliste nie je alebo je na ňom označený ako neplatný, Hub odmietne.
+    owner: "BA-Hub"
+    source: "pravidlá projektu"
+    requirements: ["R-02"]
+    scenarios: ["SC-02-01", "SC-02-02"]
+
+  - id: "BR-03"
+    title: "Pozastavený Member nemá Roaming sessions"
+    type: "invariant"
+    statement: "Pre Token eMSP Membera v stave Suspension nevznikne žiadna nová autorizovaná Roaming session. Nabíjačky pozastaveného Membera (rola CPO) ďalej slúžia Driverom iných eMSP."
+    owner: "BA-Finance"
+    source: "CONTEXT.md – Suspension, pravidlá projektu"
+    requirements: ["R-03"]
+    scenarios: ["SC-03-01"]
+    decided_by: "OQ-03 (2026-11-16)"
+
+  - id: "BR-04"
+    title: "Tariff version zo štartu session"
+    type: "invariant"
+    statement: >
+      CDR je platný iba s Tariff version, ktorá platila pri štarte Charging session
+      (posledná verzia toho Wholesale tariff s valid-from ≤ štart session).
+    owner: "BA-Hub"
+    source: "pravidlá projektu"
+    requirements: ["R-04"]
+    scenarios: ["SC-04-02"]
+
+  - id: "BR-05"
+    title: "Energia a trvanie CDR"
+    type: "rule"
+    statement: "CDR musí mať energiu väčšiu ako 0 kWh; koniec session musí byť po jej začiatku a session nesmie trvať dlhšie ako 24 hodín."
+    owner: "BA-Hub"
+    source: "idea.md – Charging session, krok 6"
+    requirements: ["R-04"]
+    scenarios: ["SC-04-03", "SC-04-04"]
+    decided_by: "OQ-02 (2026-11-16)"
+
+  - id: "BR-06"
+    title: "Limit 60 dní"
+    type: "rule"
+    statement: "Hub odmietne CDR, ak štart session je v čase prijatia starší ako 60 dní."
+    owner: "BA-Finance"
+    source: "pravidlá projektu"
+    requirements: ["R-05"]
+    scenarios: ["SC-05-01"]
+
+  - id: "BR-07"
+    title: "Neskorý CDR ide do nasledujúceho mesiaca"
+    type: "rule"
+    statement: "Platný CDR sa zaradí do Settlement mesiaca, ktorý je pri jeho prijatí otvorený; uzavretý mesiac sa nemení."
+    owner: "BA-Finance"
+    source: "pravidlá projektu"
+    requirements: ["R-05"]
+    scenarios: ["SC-05-02"]
+
+  - id: "BR-08"
+    title: "Pohľadávky z platného CDR"
+    type: "rule"
+    statement: >
+      Z každého platného CDR vzniknú dve pohľadávky: eMSP dlhuje CPO cenu CDR a eMSP dlhuje Hubu Hub fee.
+      eMSP dlhuje CPO za každý platný CDR, aj keď jeho Driver nezaplatí.
+    owner: "BA-Finance"
+    source: "pravidlá projektu, pravidlá projektu"
+    requirements: ["R-06", "R-07"]
+    scenarios: ["SC-06-01"]
+
+  - id: "BR-09"
+    title: "Zachovanie peňazí v nettingu"
+    type: "invariant"
+    statement: >
+      V uzavretom Settlement platí: súčet Net balance všetkých Members + príjem Hubu z Hub fee = 0.
+      Hub nevytvára ani nestráca peniaze, iba ich preposiela.
+    owner: "BA-Finance"
+    source: "pravidlá projektu (Hub je clearing house)"
+    requirements: ["R-06"]
+    scenarios: ["SC-06-01"]
+
+  - id: "BR-10"
+    title: "Jeden statement na Membera a mesiac"
+    type: "invariant"
+    statement: "Za jeden uzavretý mesiac má každý Member s pohybom práve jeden Settlement statement."
+    owner: "BA-Finance"
+    source: "pravidlá projektu"
+    requirements: ["R-06"]
+    scenarios: ["SC-06-01", "SC-06-02"]
+
+  - id: "BR-11"
+    title: "Hub spracúva iba Roaming sessions"
+    type: "rule"
+    statement: >
+      Hub autorizuje a účtuje iba Roaming sessions, teda keď eMSP Tokenu a CPO nabíjačky sú rôzni Members.
+    owner: "BA-Hub"
+    source: "CONTEXT.md – Roaming session, Hub fee „za každú Roaming session“"
+    requirements: ["R-01", "R-07"]
+    scenarios: ["SC-01-04"]
+    status: "approved spolu s contractom API-Hub 0.1.0 (2026-11-16)"

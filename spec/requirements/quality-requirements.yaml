@@ -1,0 +1,42 @@
+quality_requirements:
+  - id: "QR-01"
+    category: "auditability"
+    statement: >
+      Každá Authorization musí zaznamenať čas, CPO, Token, eMSP, výsledok a zdroj rozhodnutia
+      (eMSP v reálnom čase, Whitelist, pravidlo Hubu).
+    measure: "Audit record existuje pre každú ukončenú Authorization."
+    owner: "BA-Hub"
+    requirements: ["R-01", "R-02", "R-03"]
+    status: "approved"   # schválil tím 2026-11-17
+
+  - id: "QR-02"
+    category: "privacy"
+    statement: "Hub neukladá a nevracia mená ani kontakty Driverov; v Authorization a CDR sa objavuje iba Token."
+    measure: "Žiadna operácia Hub API neobsahuje osobné údaje Drivera okrem Tokenu."
+    owner: "BA-OneKeyCardUnit"
+    requirements: ["R-08"]
+    status: "approved"   # schválil tím 2026-11-17
+
+  - id: "QR-03"
+    category: "security"
+    statement: "Každé volanie Hub API je autentifikované prihlasovacími údajmi Membera vydanými pri Onboarding; Member vidí iba vlastné údaje."
+    measure: "Volanie bez platných údajov alebo k cudziemu statementu je odmietnuté."
+    owner: "BA-MemberManagement"
+    requirements: ["R-01", "R-04", "R-06"]
+    status: "approved"   # schválil tím 2026-11-17
+
+  - id: "QR-04"
+    category: "performance"
+    statement: >
+      Hub odpovie CPO na Authorization tak rýchlo, aby Roaming Driver pri nabíjačke nečakal citeľne dlhšie
+      ako vo vlastnej sieti. Business model sľubuje Driverom pohodlný prístup k všetkým sieťam jednou kartou
+      a poskytovateľom, že ich zákazníci nabíjajú inde „without switching providers“ (docs/business_model.md,
+      Value Proposition). Dlhé čakanie pri priložení karty by tento sľub porušilo.
+    measure: >
+      Celkový čas odpovede Hubu ≤ 2,5 s aj v najhoršom prípade = limit odpovede eMSP 2 s (OQ-01)
+      + vlastné spracovanie Hubu ≤ 500 ms. Vlastné spracovanie Hubu (bez čakania na eMSP) ≤ 500 ms
+      pri každej Authorization.
+    verification: "tests/authorization.test.ts – QR-04 (2 testy): realtime cesta a Whitelist pri pomalom eMSP; meraný Sandbox, nie záťažový test."
+    owner: "BA-Hub"
+    requirements: ["R-01", "R-02"]
+    status: "approved"   # hodnotu určil tím 2026-11-17 podľa docs/business_model.md a OQ-01

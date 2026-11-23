@@ -1,0 +1,432 @@
+openapi: 3.1.0
+info:
+  title: OneKey Hub API (AI-HubAPI, EA #126)
+  version: 0.1.0
+  description: >
+    Contract na hranici AC-HubService ↔ AC-MemberBackend / Finance.
+    Stav: proposed. Specification 0.1.0, baseline B-01. Mapping na IDs: contract-mapping.yaml.
+    Peniaze sú v celých eurocentoch. Chyby sú RFC 9457 problem+json.
+servers:
+  - url: http://localhost:4000/hub/v1
+security:
+  - memberToken: []
+tags:
+  - name: authorization
+  - name: cdrs
+  - name: settlement
+  - name: administration
+
+paths:
+  /tokens/{tokenUid}/authorize:
+    post:
+      operationId: authorizeToken
+      tags: [authorization]
+      summary: CPO žiada o Authorization Tokenu (R-01, R-02, R-03, R-08)
+      description: >
+        Hub požiada eMSP Tokenu v reálnom čase. Ak eMSP neodpovie do časového limitu,
+        rozhodne podľa Whitelistu (BR-01, BR-02). Rola: CPO.
+        Odmietnutie je bežná business odpoveď (200 s result=REJECTED), nie chyba.
+      parameters:
+        - $ref: '#/components/parameters/TokenUid'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AuthorizationRequest' }
+      responses:
+        '200':
+          description: Rozhodnutie Hubu
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthorizationResult' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /whitelist:
+    put:
+      operationId: replaceWhitelist
+      tags: [authorization]
+      summary: eMSP pošle celý Whitelist (R-02)
+      description: Nahradí celý Whitelist volajúceho eMSP. Tokeny musia patriť volajúcemu eMSP. Rola eMSP.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Whitelist' }
+      responses:
+        '200':
+          description: Whitelist uložený
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [count]
+                properties: { count: { type: integer } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/RuleViolation' }
+
+  /tariffs:
+    get:
+      operationId: listTariffVersions
+      tags: [cdrs]
+      summary: Všetky Tariff versions
+      responses:
+        '200':
+          description: Zoznam
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/TariffVersion' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /tariffs/{tariffId}/versions/{versionId}:
+    put:
+      operationId: putTariffVersion
+      tags: [cdrs]
+      summary: CPO pošle novú Tariff version
+      parameters:
+        - { name: tariffId, in: path, required: true, schema: { type: string } }
+        - { name: versionId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TariffVersionInput' }
+      responses:
+        '201':
+          description: Uložená
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TariffVersion' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /cdrs:
+    post:
+      operationId: submitCdr
+      tags: [cdrs]
+      summary: CPO pošle CDR ukončenej Charging session (R-04, R-05, R-07)
+      description: >
+        Hub CDR overí (BR-04, BR-05, BR-06), zaradí do otvoreného mesiaca (BR-07)
+        a vytvorí pohľadávky (BR-08). Kľúč idempotencie je (CPO, cdrId). Rola CPO.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CdrInput' }
+      responses:
+        '201':
+          description: CDR prijatý
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Cdr' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/RuleViolation' }
+    get:
+      operationId: listCdrs
+      tags: [cdrs]
+      summary: CDR, v ktorých je volajúci Member CPO alebo eMSP; Finance a Hub vidia všetky
+      responses:
+        '200':
+          description: Zoznam
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Cdr' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /statements:
+    get:
+      operationId: listStatements
+      tags: [settlement]
+      summary: Settlement statements volajúceho Membera (Finance a Hub vidia všetky) (R-06)
+      parameters:
+        - { name: period, in: query, required: false, schema: { $ref: '#/components/schemas/Period' } }
+      responses:
+        '200':
+          description: Zoznam
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/SettlementStatement' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /settlement-periods:
+    get:
+      operationId: listSettlementPeriods
+      tags: [settlement]
+      responses:
+        '200':
+          description: Mesiace a ich stav
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/SettlementPeriod' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /settlement-periods/{period}/close:
+    post:
+      operationId: closeSettlementPeriod
+      tags: [settlement]
+      summary: Finance uzavrie mesiac (R-06, BR-09, BR-10)
+      description: Možné iba pre otvorený mesiac; otvorí nasledujúci. Rola Finance.
+      parameters:
+        - { name: period, in: path, required: true, schema: { $ref: '#/components/schemas/Period' } }
+      responses:
+        '200':
+          description: Výsledok Settlement
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SettlementResult' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /members:
+    get:
+      operationId: listMembers
+      tags: [administration]
+      summary: Members a ich stav (roly Finance, Hub)
+      responses:
+        '200':
+          description: Zoznam
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Member' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /members/{memberId}/status:
+    put:
+      operationId: setMemberStatus
+      tags: [administration]
+      summary: Finance pozastaví alebo obnoví Membera (R-03)
+      parameters:
+        - { name: memberId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [active, suspended] }
+      responses:
+        '200':
+          description: Nový stav
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Member' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /authorizations:
+    get:
+      operationId: listAuthorizations
+      tags: [administration]
+      summary: Audit záznamy Authorization (QR-01) – roly Hub, Finance
+      responses:
+        '200':
+          description: Zoznam od najnovšieho
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AuthorizationResult' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+components:
+  securitySchemes:
+    memberToken:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: "Hodnota 'Token <credentials>' (vzor OCPI 2.2.1). Credentials určujú Membera alebo internú rolu (Finance, Hub)."
+
+  parameters:
+    TokenUid:
+      name: tokenUid
+      in: path
+      required: true
+      description: "Token v tvare CC*PPP*NNNNNN (URL-encoded). CC*PPP určuje eMSP."
+      schema: { type: string, pattern: '^[A-Z]{2}\*[A-Z0-9]{3}\*[A-Z0-9]{1,30}$' }
+
+  responses:
+    Unauthorized:
+      description: Chýbajúce alebo neplatné credentials (QR-03)
+      content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } }
+    Forbidden:
+      description: Volajúci nemá potrebnú rolu (QR-03)
+      content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } }
+    NotFound:
+      description: Neexistuje
+      content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } }
+    Conflict:
+      description: Konflikt stavu (duplicitný CDR, uzavretý mesiac, existujúca Tariff version)
+      content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } }
+    RuleViolation:
+      description: Porušené business pravidlá
+      content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } }
+
+  schemas:
+    Period:
+      type: string
+      pattern: '^\d{4}-(0[1-9]|1[0-2])$'
+      examples: ['2026-11']
+
+    AuthorizationRequest:
+      type: object
+      required: [locationId]
+      properties:
+        locationId: { type: string, description: "Lokalita CPO, kde Driver priložil kartu" }
+
+    AuthorizationResult:
+      type: object
+      required: [authorizationId, tokenUid, cpoId, result, source, reason, decidedAt]
+      properties:
+        authorizationId: { type: string }
+        tokenUid: { type: string }
+        cpoId: { type: string }
+        emspId: { type: [string, 'null'] }
+        locationId: { type: string }
+        result: { type: string, enum: [ACCEPTED, REJECTED] }
+        source:
+          type: string
+          enum: [EMSP_REALTIME, WHITELIST, HUB_RULE]
+          description: "Kto rozhodol (QR-01)"
+        reason:
+          type: string
+          enum: [TOKEN_VALID, TOKEN_BLOCKED, TOKEN_UNKNOWN, ON_WHITELIST, NOT_ON_WHITELIST, MEMBER_SUSPENDED, NOT_A_ROAMING_SESSION, UNKNOWN_EMSP]
+        decidedAt: { type: string, format: date-time }
+
+    Whitelist:
+      type: object
+      required: [tokens]
+      properties:
+        tokens:
+          type: array
+          items:
+            type: object
+            required: [uid, valid]
+            properties:
+              uid: { type: string }
+              valid: { type: boolean }
+
+    TariffVersionInput:
+      type: object
+      required: [pricePerKwhCents, validFrom]
+      properties:
+        pricePerKwhCents: { type: number, exclusiveMinimum: 0, examples: [45] }
+        validFrom: { type: string, format: date-time }
+
+    TariffVersion:
+      allOf:
+        - $ref: '#/components/schemas/TariffVersionInput'
+        - type: object
+          required: [tariffId, versionId, cpoId]
+          properties:
+            tariffId: { type: string }
+            versionId: { type: string }
+            cpoId: { type: string }
+
+    CdrInput:
+      type: object
+      required: [cdrId, tokenUid, locationId, tariffId, tariffVersionId, startTime, endTime, energyKwh, totalCostCents]
+      properties:
+        cdrId: { type: string }
+        tokenUid: { type: string }
+        locationId: { type: string }
+        tariffId: { type: string }
+        tariffVersionId: { type: string }
+        startTime: { type: string, format: date-time }
+        endTime: { type: string, format: date-time }
+        energyKwh: { type: number }
+        totalCostCents: { type: integer, minimum: 0, description: "Cena session podľa Wholesale tariff" }
+
+    Cdr:
+      allOf:
+        - $ref: '#/components/schemas/CdrInput'
+        - type: object
+          required: [cpoId, emspId, status, receivedAt, settlementPeriod, hubFeeCents]
+          properties:
+            cpoId: { type: string }
+            emspId: { type: string }
+            status: { type: string, enum: [accepted, settled] }
+            receivedAt: { type: string, format: date-time }
+            settlementPeriod: { $ref: '#/components/schemas/Period' }
+            hubFeeCents: { type: integer }
+
+    Member:
+      type: object
+      required: [memberId, name, roles, status, partyIds, hubFee]
+      properties:
+        memberId: { type: string }
+        name: { type: string }
+        roles: { type: array, items: { type: string, enum: [CPO, EMSP] } }
+        status: { type: string, enum: [active, suspended] }
+        partyIds: { type: array, items: { type: string }, description: "CC*PPP prefixy Tokenov eMSP" }
+        hubFee:
+          type: object
+          required: [kind, value]
+          properties:
+            kind: { type: string, enum: [FIXED, PERCENT] }
+            value: { type: number, description: "eurocenty pri FIXED, percento pri PERCENT" }
+
+    SettlementPeriod:
+      type: object
+      required: [period, status]
+      properties:
+        period: { $ref: '#/components/schemas/Period' }
+        status: { type: string, enum: [open, closed] }
+        closedAt: { type: [string, 'null'], format: date-time }
+
+    SettlementStatement:
+      type: object
+      required: [period, memberId, receivablesCents, payablesCents, hubFeesCents, netBalanceCents, cdrCount]
+      properties:
+        period: { $ref: '#/components/schemas/Period' }
+        memberId: { type: string }
+        receivablesCents: { type: integer, description: "Čo Memberovi dlhujú eMSP za CDR na jeho nabíjačkách" }
+        payablesCents: { type: integer, description: "Čo Member dlhuje CPO za CDR svojich Tokenov" }
+        hubFeesCents: { type: integer, description: "Hub fee, ktoré Member dlhuje Hubu" }
+        netBalanceCents: { type: integer, description: "receivables − payables − hubFees; kladné = Hub platí Memberovi" }
+        cdrCount: { type: integer }
+
+    SettlementResult:
+      type: object
+      required: [period, statements, hubFeeIncomeCents, nextOpenPeriod]
+      properties:
+        period: { $ref: '#/components/schemas/Period' }
+        statements: { type: array, items: { $ref: '#/components/schemas/SettlementStatement' } }
+        hubFeeIncomeCents: { type: integer }
+        nextOpenPeriod: { $ref: '#/components/schemas/Period' }
+
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: { type: string }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        violations:
+          type: array
+          items:
+            type: object
+            required: [rule, message]
+            properties:
+              rule: { type: string, examples: ['BR-04'] }
+              message: { type: string }

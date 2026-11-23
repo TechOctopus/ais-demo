@@ -1,0 +1,40 @@
+{
+  "name": "onekey-hub-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OneKey Hub – SDD prototyp výrezu Authorization → CDR → Settlement (contract API-Hub 0.1.0)",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k \"tsx watch src/server/main.ts\" \"vite\"",
+    "build": "npm run typecheck && node scripts/build-web.mjs",
+    "build:pages": "npm run typecheck && STATIC_BASE=${STATIC_BASE:-/ais-demo/} node scripts/build-web.mjs",
+    "start": "tsx src/server/main.ts",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.web.json"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tsx": "^4.20.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.1",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@types/supertest": "^6.0.3",
+    "@vitejs/plugin-react": "^4.7.0",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "concurrently": "^9.2.0",
+    "esbuild": "^0.28.2",
+    "supertest": "^7.1.3",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.5",
+    "vitest": "^3.2.4",
+    "yaml": "^2.8.0"
+  }
+}

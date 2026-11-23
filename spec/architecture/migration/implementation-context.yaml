@@ -1,0 +1,17 @@
+implementation:
+  current_plateau: "PL-ASIS"     # EA #192
+  target_plateau: "PL-TOBE"      # EA #193
+  transition_plateau: "Hub s pilotnými členmi (návrh v správe, kap. Migrácia – nie je v modeli)"
+  related_gaps: ["GAP-GenericHub", "GAP-MemberIntegration"]   # EA #195, #196
+  work_packages:
+    - id: "WP-P01"
+      name: "Prototyp Roaming session v Sandboxe"
+      delivers: ["D-API-Hub-0.1", "D-HubPrototypePackage"]
+      realizes_requirements: ["R-01", "R-02", "R-03", "R-04", "R-05", "R-06", "R-07", "R-08"]
+      contributes_to_deliverable: "D-HubService (EA #200)"
+      status: "proposed"
+  deliverables:
+    - id: "D-API-Hub-0.1"
+      type: "approved contract"
+    - id: "D-HubPrototypePackage"
+      type: "deployable artifact (ART-HubPrototypePackage)"

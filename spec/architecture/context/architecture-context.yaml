@@ -1,0 +1,122 @@
+# Ručný súhrn výrezu modelu B-01 (nie export zo Sparx EA).
+# ea_id = Object_ID v ais.qea. Priradenie ID ↔ názov overil tím voči modelu.
+architecture_context:
+  baseline: "B-01"   # ais.qea aktualizovaný 2026-11-17: premenované prvky, rovnaké EA IDs okrem technologických uzlov; doplnené Data Objects 294–300 a konektory 401–422
+  status: "draft"
+  prepared_from:
+    - "spec/architecture/views/B-01-business-process-to-be.png"
+    - "spec/architecture/views/B-01-application-usage-to-be.png"
+    - "spec/architecture/views/B-01-application-cooperation-to-be.png"
+    - "spec/architecture/views/B-01-service-realization-to-be.png"
+    - "spec/architecture/views/B-01-technology-to-be.png"
+    - "spec/architecture/views/B-01-deployment-to-be.png"
+  reviewed_by: "tím projektu – názvy a EA IDs overené voči ais.qea 2026-11-17 (potvrdil používateľ za tím)"
+
+elements:
+  # Motivation
+  - { id: "G-BetterChargeAccess",  ea_id: 43, name: "Better Charge Access",  type: "Goal" }
+  - { id: "G-OneCommonCard",       ea_id: 60, name: "One Common Card for All", type: "Goal" }
+  - { id: "G-IncreaseRevenue",     ea_id: 53, name: "Increase Revenue",      type: "Goal" }
+  - { id: "MR-NoNeedToKnowProvider", ea_id: 46, name: "No Need to Know Charger Provider", type: "Requirement (model)" }
+  - { id: "MR-AgreementProfitability", ea_id: 56, name: "Agreement Profitability", type: "Requirement (model)" }
+  - { id: "MR-EaseOfIntegration",  ea_id: 58, name: "Ease Of Integration",   type: "Requirement (model)" }
+  # Business
+  - { id: "BA-Hub",                ea_id: 24, name: "Hub",                   type: "Business Actor" }
+  - { id: "BA-Finance",            ea_id: 17, name: "Finance",               type: "Business Actor" }
+  - { id: "BA-MemberManagement",   ea_id: 21, name: "Member Management",     type: "Business Actor" }
+  - { id: "BA-OneKeyCardUnit",     ea_id: 63, name: "Card Unit",             type: "Business Actor" }
+  - { id: "BA-Member",             ea_id: 68, name: "Charging Provider",                type: "Business Actor" }
+  - { id: "BA-Driver",             ea_id: 67, name: "Driver",                type: "Business Actor" }
+  - { id: "ROLE-RoamingDriver",    ea_id: 71, name: "Roaming Driver",        type: "Business Role" }
+  - { id: "ROLE-Subscriber",       ea_id: 69, name: "Subscribed Driver",     type: "Business Role" }
+  - { id: "ROLE-PayAsYouGoDriver", ea_id: 70, name: "Pay-as-you-go Driver",  type: "Business Role" }
+  - { id: "EV-MemberDriverNeedsCharging", ea_id: 107, name: "Member Driver Needs Charging", type: "Business Event" }
+  - { id: "BP-ChargeMemberDriver", ea_id: 108, name: "1.0 Charge Member Driver", type: "Business Process" }
+  - { id: "BP-Authorization",      ea_id: 109, name: "1.1 Authorization",    type: "Business Process" }
+  - { id: "BP-BridgeMembers",      ea_id: 110, name: "1.2 Bridge Providers", type: "Business Process" }
+  - { id: "BP-SettlePayment",      ea_id: 111, name: "1.3 Settle Payment",   type: "Business Process" }
+  - { id: "BS-AuthorizationService", ea_id: 77, name: "Authorization Service", type: "Business Service" }
+  - { id: "BS-MemberCommunicationService", ea_id: 78, name: "Provider Communication Service", type: "Business Service" }
+  - { id: "BS-SettlementService",  ea_id: 80, name: "Settlement Service",    type: "Business Service" }
+  - { id: "BS-MemberHubService",   ea_id: 138, name: "Provider Hub Service", type: "Business Service" }
+  - { id: "BO-DriverIdentity",     ea_id: 112, name: "Driver Identity",      type: "Business Object" }
+  - { id: "BO-PaymentClaim",       ea_id: 113, name: "Payment Claim",        type: "Business Object" }
+  - { id: "BO-MemberPaymentClaim", ea_id: 135, name: "Provider Payment Claim", type: "Business Object" }
+  # Application (TO-BE)
+  - { id: "AC-HubService",         ea_id: 85,  name: "Hub Service",          type: "Application Component" }
+  - { id: "AC-IdentityService",    ea_id: 104, name: "Identity Service",     type: "Application Component" }
+  - { id: "AC-IdentityStorage",    ea_id: 116, name: "Identity Storage",     type: "Application Component" }
+  - { id: "AC-MemberBackend",      ea_id: 127, name: "External Provider Service", type: "Application Component (externý)" }
+  - { id: "AC-MobileApp",          ea_id: 88,  name: "Mobile App",           type: "Application Component" }
+  - { id: "AI-HubAPI",             ea_id: 126, name: "Hub API",              type: "Application Interface" }
+  - { id: "AI-IdentityAPI",        ea_id: 125, name: "Identity API",         type: "Application Interface" }
+  - { id: "AI-MemberBackendAPI",   ea_id: 130, name: "External Provider Service API", type: "Application Interface" }
+  - { id: "AS-HubService",         ea_id: 120, name: "Hub Service",          type: "Application Service" }
+  - { id: "AS-AuthorizationService", ea_id: 121, name: "Authorization Service", type: "Application Service" }
+  - { id: "DO-DriverRecord",       ea_id: 128, name: "Driver Record",        type: "Data Object" }
+  - { id: "DO-PaymentClaimRecord", ea_id: 134, name: "Payment Claim Record", type: "Data Object" }
+  - { id: "DO-MemberPaymentClaimRecord", ea_id: 136, name: "Provider Payment Claim Record", type: "Data Object" }
+  - { id: "DO-CDR",                ea_id: 294, name: "CDR",                  type: "Data Object" }
+  - { id: "DO-Token",              ea_id: 295, name: "Token",                type: "Data Object" }
+  - { id: "DO-Whitelist",          ea_id: 296, name: "Whitelist",            type: "Data Object" }
+  - { id: "DO-TariffVersion",      ea_id: 297, name: "Tariff version",       type: "Data Object" }
+  - { id: "DO-SettlementStatement", ea_id: 298, name: "Settlement statement", type: "Data Object" }
+  - { id: "DO-Member",             ea_id: 299, name: "Member",               type: "Data Object" }
+  - { id: "DO-AuthorizationRecord", ea_id: 300, name: "Authorization record", type: "Data Object" }
+  # Technology (TO-BE)
+  - { id: "NODE-OneKeySandbox",    ea_id: 266, name: "Sandbox Environment", type: "Node" }
+  - { id: "NODE-SandboxHubContainer", ea_id: 267, name: "Sandbox Hub Container", type: "Node" }
+  - { id: "NODE-HubContainer",     ea_id: 141, name: "Hub Container",        type: "Node" }
+  - { id: "SSW-HubRuntime",        ea_id: 142, name: "Hub FastAPI Runtime",  type: "System Software" }
+  - { id: "SSW-JobScheduler",      ea_id: 269, name: "Job Scheduler",        type: "System Software" }
+  - { id: "TS-HubAppService",      ea_id: 140, name: "Hub App Service",      type: "Technology Service" }
+  - { id: "ART-HubAppImage",       ea_id: 153, name: "Hub App Image",        type: "Artifact" }
+  # Implementation
+  - { id: "PL-ASIS",               ea_id: 192, name: "AS-IS",                type: "Plateau" }
+  - { id: "PL-TOBE",               ea_id: 193, name: "TO-BE",                type: "Plateau" }
+  - { id: "GAP-GenericHub",        ea_id: 195, name: "Generic Hub System Required", type: "Gap" }
+  - { id: "GAP-MemberIntegration", ea_id: 196, name: "External Provider Integration Required", type: "Gap" }
+  - { id: "D-HubService",          ea_id: 200, name: "Hub Service",          type: "Deliverable" }
+
+relationship_notes:   # overené v t_connector modelu B-01 (typ a smer)
+  - { from: "EV-MemberDriverNeedsCharging", to: "BP-Authorization", type: "Triggering", ea_connector: 103 }
+  - { from: "BP-Authorization", to: "BP-BridgeMembers", type: "Triggering", ea_connector: 104 }
+  - { from: "BP-BridgeMembers", to: "BP-SettlePayment", type: "Triggering", ea_connector: 105 }
+  - { from: "BP-Authorization", to: "BS-AuthorizationService", type: "Realization", ea_connector: 241 }
+  - { from: "BP-BridgeMembers", to: "BS-MemberCommunicationService", type: "Realization", ea_connector: 244 }
+  - { from: "BP-SettlePayment", to: "BS-SettlementService", type: "Realization", ea_connector: 245 }
+  - { from: "AS-AuthorizationService", to: "BP-Authorization", type: "Serving", ea_connector: 132 }
+  - { from: "AS-AuthorizationService", to: "BP-BridgeMembers", type: "Serving", ea_connector: 133 }
+  - { from: "AS-HubService", to: "BP-Authorization", type: "Serving", ea_connector: 414 }
+  - { from: "AS-HubService", to: "BP-BridgeMembers", type: "Serving", ea_connector: 134 }
+  - { from: "AS-HubService", to: "BP-SettlePayment", type: "Serving", ea_connector: 135 }
+  - { from: "AC-HubService", to: "AS-HubService", type: "Realization", ea_connector: 130 }
+  - { from: "AC-IdentityService", to: "AS-AuthorizationService", type: "Realization", ea_connector: 129 }
+  - { from: "AC-HubService", to: "AC-MemberBackend", type: "Flow", ea_connector: 164 }
+  - { from: "AC-MemberBackend", to: "AC-HubService", type: "Flow", ea_connector: 165 }
+  - { from: "AC-HubService", to: "AC-IdentityService", type: "Flow", ea_connector: 163 }
+  - { from: "AC-IdentityService", to: "AC-HubService", type: "Flow", ea_connector: 162 }
+  - { from: "AI-HubAPI", to: "AC-HubService", type: "Serving", ea_connector: 158 }
+  - { from: "AI-MemberBackendAPI", to: "AC-MemberBackend", type: "Serving", ea_connector: 159 }
+  - { from: "DO-MemberPaymentClaimRecord", to: "BO-MemberPaymentClaim", type: "Realization", ea_connector: 172 }
+  - { from: "DO-PaymentClaimRecord", to: "BO-PaymentClaim", type: "Realization", ea_connector: 171 }
+  - { from: "TS-HubAppService", to: "AC-HubService", type: "Serving", ea_connector: 185 }
+  - { from: "ART-HubAppImage", to: "AC-HubService", type: "Realization", ea_connector: 192 }
+  # Doplnené do modelu 2026-11-17 na základe prototypu (schválil tím)
+  - { from: "DO-Token", to: "BO-DriverIdentity", type: "Realization", ea_connector: 401 }
+  - { from: "DO-Whitelist", to: "BO-DriverIdentity", type: "Realization", ea_connector: 402 }
+  - { from: "DO-CDR", to: "BO-PaymentClaim", type: "Realization", ea_connector: 403 }
+  - { from: "DO-SettlementStatement", to: "BO-MemberPaymentClaim", type: "Realization", ea_connector: 404 }
+  - { from: "DO-TariffVersion", to: "DO-CDR", type: "Association", ea_connector: 405 }
+  - { from: "AC-HubService", to: "DO-CDR", type: "Access (read/write: 406 + 407)", ea_connector: 406 }
+  - { from: "AC-HubService", to: "DO-Whitelist", type: "Access (read/write: 408 + 409)", ea_connector: 408 }
+  - { from: "AC-HubService", to: "DO-TariffVersion", type: "Access (read/write: 410 + 411)", ea_connector: 410 }
+  - { from: "AC-HubService", to: "DO-SettlementStatement", type: "Access (read/write: 412 + 413)", ea_connector: 412 }
+  - { from: "DO-AuthorizationRecord", to: "BO-DriverIdentity", type: "Realization", ea_connector: 415 }
+  - { from: "DO-Member", to: "DO-SettlementStatement", type: "Association", ea_connector: 416 }
+  - { from: "AC-HubService", to: "DO-Member", type: "Access (read/write: 417 + 418)", ea_connector: 417 }
+  - { from: "AC-HubService", to: "DO-AuthorizationRecord", type: "Access (read/write: 419 + 420)", ea_connector: 419 }
+  - { from: "AC-HubService", to: "DO-MemberPaymentClaimRecord", type: "Access (read/write: 421 + 422)", ea_connector: 421 }
+
+known_gaps_in_model:   # prvky, ktoré prototyp potrebuje, ale model B-01 ich nemá
+  - "Model nemá samostatnú Application Service pre smerovanie autorizácie; smerovanie zabezpečuje AS-HubService, ktorá od 2026-11-17 slúži aj procesu 1.1 Authorization (EA 414)."

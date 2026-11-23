@@ -1,0 +1,19 @@
+approval:
+  contract_id: "API-Hub"
+  version: "0.1.0"
+  status: "approved"
+  files: ["hub-api.openapi.yaml", "member-backend-api.openapi.yaml", "contract-mapping.yaml"]
+  specification_version: "0.1.0"
+  architecture_baseline: "B-01"
+  approved_by_role: "Solution Architect (člen tímu)"
+  approved_on: "2026-11-16"
+  approved_in: "pracovné sedenie s AI asistentom (gate 6 – odpoveď človeka na DECISION REQUIRED)"
+  includes:
+    - "contract-design-profile.yaml (autentifikácia Token, eurocenty, problem+json, idempotencia CDR)"
+    - "BR-11 Hub spracúva iba Roaming sessions"
+  closed_decisions:
+    - { id: "OQ-01", decision: "limit odpovede eMSP 2 s, konfigurovateľný" }
+    - { id: "OQ-02", decision: "trvanie: koniec > začiatok, max. 24 h" }
+    - { id: "OQ-03", decision: "Suspension blokuje iba Tokeny pozastaveného Membera (rola eMSP)" }
+  unresolved_decisions: []
+  note: "Záznam vytvorila AI na výslovný pokyn človeka, ktorý schválenie udelil. pravidlá projektu tím prijal 2026-11-17 ()."

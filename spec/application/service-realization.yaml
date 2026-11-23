@@ -1,0 +1,22 @@
+service_realization:
+  - business_service: "BS-AuthorizationService"
+    used_by_roles: ["ROLE-RoamingDriver", "ROLE-Subscriber", "ROLE-PayAsYouGoDriver"]
+    realized_by_business_processes: ["BP-Authorization"]
+    supported_by_application_services: ["AS-AuthorizationService", "AS-HubService"]
+    provided_by_components: ["AC-IdentityService", "AC-HubService"]
+    requirements: ["R-01", "R-02", "R-03", "R-08"]
+    note: "Väzba AS-HubService → BP-Authorization (Serving) bola doplnená do modelu 2026-11-17 (EA konektor 414); AS-HubService smeruje autorizáciu k eMSP a používa Whitelist."
+
+  - business_service: "BS-MemberCommunicationService"
+    used_by_roles: ["BA-Member"]
+    realized_by_business_processes: ["BP-BridgeMembers"]
+    supported_by_application_services: ["AS-HubService"]
+    provided_by_components: ["AC-HubService"]
+    requirements: ["R-04", "R-05"]
+
+  - business_service: "BS-SettlementService"
+    used_by_roles: ["BA-Member"]
+    realized_by_business_processes: ["BP-SettlePayment"]
+    supported_by_application_services: ["AS-HubService"]
+    provided_by_components: ["AC-HubService"]
+    requirements: ["R-06", "R-07"]

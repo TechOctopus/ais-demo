@@ -1,0 +1,80 @@
+data_objects:
+  - id: "DO-Member"
+    ea_id: 299
+    name: "Member"
+    meaning: "Member s rolami, stavom (active / suspended) a Hub fee z jeho hub agreement."
+    owner_component: "AC-HubService"
+    related_business_object: null
+    model_status: "existing – doplnené do modelu 2026-11-17 (asociácia s DO-SettlementStatement)"
+    sensitive_data: false
+
+  - id: "DO-Token"
+    ea_id: 295
+    name: "Token"
+    meaning: "ID karty alebo účtu Drivera vydané eMSP. Obsahuje identifikátor eMSP (country code + party id podľa OCPI)."
+    owner_component: "eMSP (AC-MemberBackend / AC-IdentityService)"
+    related_business_object: "BO-DriverIdentity"
+    model_status: "existing – doplnené do modelu 2026-11-17"
+    sensitive_data: true   # pseudonymný identifikátor
+
+  - id: "DO-Whitelist"
+    ea_id: 296
+    name: "Whitelist"
+    meaning: "Zoznam Tokenov s príznakom platnosti, ktorý eMSP poslal do Hubu."
+    owner_component: "AC-HubService"
+    related_business_object: "BO-DriverIdentity"
+    model_status: "existing – doplnené do modelu 2026-11-17"
+    sensitive_data: true
+
+  - id: "DO-AuthorizationRecord"
+    ea_id: 300
+    name: "Authorization record"
+    meaning: "Záznam jednej Authorization: čas, CPO, Token, eMSP, výsledok, zdroj, dôvod (QR-01)."
+    owner_component: "AC-HubService"
+    related_business_object: "BO-DriverIdentity"
+    model_status: "existing – doplnené do modelu 2026-11-17"
+    sensitive_data: true
+
+  - id: "DO-TariffVersion"
+    ea_id: 297
+    name: "Tariff version"
+    meaning: "Wholesale tariff CPO s cenou za kWh a časom valid-from."
+    owner_component: "AC-HubService"
+    model_status: "existing – doplnené do modelu 2026-11-17 (asociácia s DO-CDR)"
+    sensitive_data: false
+
+  - id: "DO-CDR"
+    ea_id: 294
+    name: "CDR"
+    meaning: "Záznam CPO o ukončenej Charging session a výsledok jeho validácie."
+    owner_component: "AC-HubService"
+    related_business_object: "BO-PaymentClaim"
+    model_status: "existing – doplnené do modelu 2026-11-17"
+    sensitive_data: true
+
+  - id: "DO-MemberPaymentClaimRecord"
+    ea_id: 136
+    name: "Provider Payment Claim Record"
+    meaning: "Pohľadávka vzniknutá z platného CDR: eMSP → CPO (cena CDR) a eMSP → Hub (Hub fee)."
+    owner_component: "AC-HubService"
+    related_business_object: "BO-MemberPaymentClaim"
+    model_status: "existing – význam potvrdil tím 2026-11-17; prístup AC-HubService doplnený do modelu (EA 421 + 422)"
+    sensitive_data: false
+
+  - id: "DO-SettlementStatement"
+    ea_id: 298
+    name: "Settlement statement"
+    meaning: "Výsledok Settlement pre jedného Membera a jeden mesiac: pohľadávky, záväzky, Hub fee, Net balance."
+    owner_component: "AC-HubService"
+    related_business_object: "BO-MemberPaymentClaim"
+    model_status: "existing – doplnené do modelu 2026-11-17"
+    sensitive_data: false
+
+  - id: "DO-DriverRecord"
+    ea_id: 128
+    name: "Driver Record"
+    meaning: "Zákaznícky záznam OneKey card unit. Hub k nemu nemá prístup (AR-01)."
+    owner_component: "AC-IdentityService"
+    related_business_object: "BO-DriverIdentity"
+    model_status: "existing"
+    sensitive_data: true

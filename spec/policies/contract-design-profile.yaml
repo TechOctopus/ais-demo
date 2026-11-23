@@ -1,0 +1,23 @@
+contract_design_profile:
+  status: "approved"
+  approved_by: "Solution Architect (člen tímu), 2026-11-16 – spolu s API-Hub 0.1.0"
+  http:
+    specification: "OpenAPI 3.1"
+    style: "OCPI 2.2.1 štýl: REST, JSON, odpoveď v obálke nie je potrebná"
+    base_path: "/hub/v1"
+    naming:
+      paths: "kebab-case, podstatné mená v množnom čísle"
+      operation_ids: "lowerCamelCase"
+      json_fields: "camelCase"
+    date_time: "RFC 3339 UTC"
+    money: "celé eurocenty (integer), mena EUR"
+    errors: "RFC 9457 problem+json s poľom violations[] pre porušené pravidlá (BR-xx)"
+  security:
+    authentication: "hlavička Authorization: Token <credentials> – prihlasovacie údaje Membera z Onboarding (vzor OCPI 2.2.1)"
+    authorization: "explicitne pri každej operácii: rola CPO / eMSP / Finance"
+  identifiers:
+    token: "eMAID-podobný reťazec CC*PPP*NNNNNN; CC*PPP určuje eMSP (OCPI country_code + party_id)"
+  idempotency:
+    cdr: "kľúčom je (CPO, cdrId); opakovaný CDR sa druhýkrát nezapočíta"
+  compatibility:
+    breaking_change: "human decision required"

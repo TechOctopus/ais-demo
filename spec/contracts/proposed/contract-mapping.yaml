@@ -1,0 +1,123 @@
+contract:
+  id: "API-Hub"
+  version: "0.1.0"
+  status: "proposed"
+  specification_version: "0.1.0"
+  architecture_baseline: "B-01"
+  files: ["hub-api.openapi.yaml", "member-backend-api.openapi.yaml"]
+
+operations:
+  - operation_id: "authorizeToken"
+    application_service: "AS-HubService"
+    provided_by_component: "AC-HubService"
+    interface: "AI-HubAPI"
+    business_service: "BS-AuthorizationService"
+    business_process: "BP-Authorization"
+    requirements: ["R-01", "R-02", "R-03", "R-08"]
+    rules: ["BR-01", "BR-02", "BR-03", "BR-11"]
+    scenarios: ["SC-01-01", "SC-01-02", "SC-01-03", "SC-01-04", "SC-02-01", "SC-02-02", "SC-03-01"]
+    data_objects: ["DO-Token", "DO-AuthorizationRecord", "DO-Whitelist", "DO-Member"]
+    interactions: ["INT-01", "INT-02", "INT-03"]
+  - operation_id: "emspAuthorizeToken"
+    application_service: "AS-AuthorizationService (OneKey card) / eMSP authorization"
+    provided_by_component: "AC-IdentityService, AC-MemberBackend"
+    interface: "AI-IdentityAPI, AI-MemberBackendAPI"
+    business_process: "BP-Authorization"
+    requirements: ["R-01", "R-08"]
+    rules: ["BR-01"]
+    scenarios: ["SC-01-01", "SC-01-02", "SC-01-03"]
+    data_objects: ["DO-Token"]
+    interactions: ["INT-02", "INT-03"]
+  - operation_id: "replaceWhitelist"
+    application_service: "AS-HubService"
+    provided_by_component: "AC-HubService"
+    business_process: "BP-Authorization"
+    requirements: ["R-02"]
+    rules: ["BR-02"]
+    scenarios: ["SC-02-01", "SC-02-02"]
+    data_objects: ["DO-Whitelist"]
+    interactions: ["INT-04"]
+  - operation_id: "putTariffVersion"
+    application_service: "AS-HubService"
+    provided_by_component: "AC-HubService"
+    business_process: "BP-BridgeMembers"
+    requirements: ["R-04"]
+    rules: ["BR-04"]
+    scenarios: ["SC-04-02"]
+    data_objects: ["DO-TariffVersion"]
+    interactions: ["INT-05"]
+  - operation_id: "listTariffVersions"
+    application_service: "AS-HubService"
+    provided_by_component: "AC-HubService"
+    business_process: "BP-BridgeMembers"
+    requirements: ["R-04"]
+    data_objects: ["DO-TariffVersion"]
+  - operation_id: "submitCdr"
+    application_service: "AS-HubService"
+    provided_by_component: "AC-HubService"
+    business_service: "BS-MemberCommunicationService"
+    business_process: "BP-BridgeMembers"
+    requirements: ["R-04", "R-05", "R-07"]
+    rules: ["BR-04", "BR-05", "BR-06", "BR-07", "BR-08", "BR-11"]
+    scenarios: ["SC-04-01", "SC-04-02", "SC-04-03", "SC-04-04", "SC-05-01", "SC-05-02"]
+    data_objects: ["DO-CDR", "DO-TariffVersion", "DO-MemberPaymentClaimRecord"]
+    interactions: ["INT-05"]
+  - operation_id: "listCdrs"
+    application_service: "AS-HubService"
+    provided_by_component: "AC-HubService"
+    business_process: "BP-BridgeMembers"
+    requirements: ["R-04"]
+    data_objects: ["DO-CDR"]
+  - operation_id: "closeSettlementPeriod"
+    application_service: "AS-HubService"
+    provided_by_component: "AC-HubService"
+    business_service: "BS-SettlementService"
+    business_process: "BP-SettlePayment"
+    requirements: ["R-06", "R-07"]
+    rules: ["BR-07", "BR-08", "BR-09", "BR-10"]
+    scenarios: ["SC-06-01", "SC-06-02"]
+    data_objects: ["DO-SettlementStatement", "DO-MemberPaymentClaimRecord"]
+  - operation_id: "listStatements"
+    application_service: "AS-HubService"
+    provided_by_component: "AC-HubService"
+    business_service: "BS-SettlementService"
+    business_process: "BP-SettlePayment"
+    requirements: ["R-06"]
+    data_objects: ["DO-SettlementStatement"]
+    interactions: ["INT-06"]
+  - operation_id: "listSettlementPeriods"
+    application_service: "AS-HubService"
+    provided_by_component: "AC-HubService"
+    business_process: "BP-SettlePayment"
+    requirements: ["R-05", "R-06"]
+  - operation_id: "setMemberStatus"
+    application_service: "AS-HubService"
+    provided_by_component: "AC-HubService"
+    business_process: "BP-SettlePayment"
+    requirements: ["R-03"]
+    rules: ["BR-03"]
+    scenarios: ["SC-03-01"]
+    data_objects: ["DO-Member"]
+  - operation_id: "listMembers"
+    application_service: "AS-HubService"
+    provided_by_component: "AC-HubService"
+    requirements: ["R-03"]
+    data_objects: ["DO-Member"]
+  - operation_id: "listAuthorizations"
+    application_service: "AS-HubService"
+    provided_by_component: "AC-HubService"
+    requirements: ["R-01"]
+    quality_requirements: ["QR-01"]
+    data_objects: ["DO-AuthorizationRecord"]
+
+approval_checklist:
+  business_reason_and_requirement_per_operation: "PASS – každá operácia má R-xx"
+  mapped_to_service_and_component: "PASS"
+  glossary_names: "PASS – Token, CDR, Tariff version, Settlement, Member, Hub fee"
+  positive_and_negative_scenarios: "PASS – 15 scenárov, z toho 9 negatívnych"
+  rules_verifiable: "PASS – BR-01 až BR-11 overené testami (po implementácii)"
+  auth_audit_sensitive_data: "PASS – Token header, role per operation, QR-01, QR-02"
+  error_and_idempotency: "PASS – problem+json, 409 pre duplicitný CDR a uzavretý mesiac"
+  policy: "PASS – contract-design-profile.yaml (draft – schváliť spolu s contractom)"
+  breaking_changes: "not applicable – prvá verzia"
+  open_decisions: "OPEN – OQ-01, OQ-02, OQ-03, BR-11 (pozri reports/decision-required-CH-01.md)"

@@ -1,0 +1,22 @@
+lifecycles:
+  - data_object: "DO-CDR"
+    initial_state: "received"
+    transitions:
+      - { from: "received", to: "accepted", trigger: "CDR splní BR-04, BR-05, BR-06", requirements: ["R-04", "R-05"] }
+      - { from: "received", to: "rejected", trigger: "CDR poruší aspoň jedno pravidlo", requirements: ["R-04", "R-05"] }
+      - { from: "accepted", to: "settled", trigger: "Finance uzavrie mesiac, do ktorého CDR patrí", guard_rules: ["BR-07"], requirements: ["R-06"] }
+    final_states: ["rejected", "settled"]
+    out_of_scope: "Stav held (Dispute) – C-03"
+
+  - data_object: "DO-Member"
+    initial_state: "active"   # Onboarding a Go-live sú mimo výrezu
+    transitions:
+      - { from: "active", to: "suspended", trigger: "Finance pozastaví Membera pre nezaplatený Net balance", requirements: ["R-03"] }
+      - { from: "suspended", to: "active", trigger: "Finance potvrdí úhradu", requirements: ["R-03"] }
+    out_of_scope: "terminated, Onboarding"
+
+  - data_object: "Settlement period (mesiac)"
+    initial_state: "open"
+    transitions:
+      - { from: "open", to: "closed", trigger: "Finance uzavrie mesiac; otvorí sa nasledujúci", guard_rules: ["BR-07", "BR-10"], requirements: ["R-05", "R-06"] }
+    invariants: ["V každom okamihu je otvorený práve jeden mesiac.", "Uzavretý mesiac sa nemení (BR-07)."]

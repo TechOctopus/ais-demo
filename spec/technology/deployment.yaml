@@ -1,0 +1,9 @@
+artifacts:
+  - id: "ART-HubPrototypePackage"
+    name: "OneKey Hub prototype package (Node.js build + statický web)"
+    realizes: ["AC-HubService", "AC-IdentityService", "AC-MemberBackend (simulátor)"]
+    corresponds_to_model_artifact: "ART-HubAppImage (EA #153) – v prototype bez kontajnera"
+    deployed_on: "NODE-SandboxHubContainer"
+    uses_technology_services: ["TS-HubAppService"]
+    build: "npm run build"
+    run: "npm start  (http://localhost:4000)"

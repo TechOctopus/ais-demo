@@ -1,0 +1,71 @@
+actors_roles:
+  - id: "BA-Member"
+    name: "Member"
+    responsibility: "V role CPO žiada o Authorization a posiela CDR; v role eMSP odpovedá na Authorization a posiela Whitelist."
+  - id: "BA-Hub"
+    name: "Hub"
+    responsibility: "Smeruje Authorization a CDR medzi Members, overuje CDR, počíta Settlement."
+  - id: "BA-Finance"
+    name: "Finance"
+    responsibility: "Uzatvára mesiac, posiela statements, pozastavuje a obnovuje Members."
+  - id: "BA-OneKeyCardUnit"
+    name: "Card Unit"
+    responsibility: "Ako eMSP odpovedá na Authorization Tokenov OneKey card."
+  - id: "ROLE-RoamingDriver"
+    name: "Roaming Driver"
+    responsibility: "Nabíja s Tokenom svojho eMSP u iného CPO. S Hubom nekomunikuje priamo."
+
+processes:
+  - id: "BP-Authorization"
+    name: "1.1 Authorization"
+    part_of: "BP-ChargeMemberDriver"
+    owner: "BA-Hub"
+    trigger: "EV-MemberDriverNeedsCharging – Driver priloží kartu na nabíjačke CPO a CPO požiada Hub o Authorization."
+    preconditions:
+      - "CPO aj eMSP sú Members po Go-live."
+    main_flow:
+      - "Hub určí eMSP, ktorý Token vydal."
+      - "Hub požiada eMSP o odpoveď v reálnom čase."
+      - "eMSP odpovie, že Token je platný."
+      - "Hub vráti CPO kladnú odpoveď a zaznamená Authorization."
+    exceptions:
+      - "eMSP Token odmietne → Hub odmietne (BR-01)."
+      - "eMSP neodpovie včas → Hub rozhodne podľa Whitelistu (BR-02)."
+      - "Dotknutý Member je v Suspension → Hub odmietne (BR-03)."
+      - "Token nepatrí žiadnemu eMSP Memberovi → Hub odmietne."
+      - "eMSP Tokenu a CPO sú ten istý Member → nejde o Roaming session (BR-11)."
+    outcome: "CPO pozná rozhodnutie a Authorization je zaznamenaná."
+    provides_business_services: ["BS-AuthorizationService"]
+
+  - id: "BP-BridgeMembers"
+    name: "1.2 Bridge Providers"
+    part_of: "BP-ChargeMemberDriver"
+    owner: "BA-Hub"
+    trigger: "CPO pošle Hubu CDR ukončenej Charging session."
+    preconditions:
+      - "CPO poslal Hubu Tariff version, ktorú CDR uvádza."
+    main_flow:
+      - "Hub overí CDR podľa BR-04, BR-05, BR-06."
+      - "Hub zaradí platný CDR do otvoreného mesiaca (BR-07) a vytvorí pohľadávky (BR-08)."
+      - "Hub sprístupní CDR eMSP."
+    exceptions:
+      - "CDR porušuje pravidlo → Hub ho odmietne a vráti zoznam porušení."
+      - "CDR s rovnakým ID od toho istého CPO už existuje → Hub ho druhýkrát nezapočíta."
+    outcome: "Platný CDR je v Settlement, neplatný je odmietnutý s dôvodom."
+    provides_business_services: ["BS-MemberCommunicationService"]
+
+  - id: "BP-SettlePayment"
+    name: "1.3 Settle Payment"
+    part_of: "BP-ChargeMemberDriver"
+    owner: "BA-Finance"
+    trigger: "Koniec mesiaca – Finance uzavrie mesiac."
+    preconditions:
+      - "Mesiac je otvorený."
+    main_flow:
+      - "Hub sčíta pohľadávky každého Membera z platných CDR mesiaca."
+      - "Hub vypočíta Net balance každého Membera a príjem z Hub fee."
+      - "Hub vytvorí jeden Settlement statement na Membera a otvorí nasledujúci mesiac."
+    exceptions:
+      - "Member nezaplatí → Finance ho pozastaví (Suspension); zábezpeka je mimo rozsahu (C-03)."
+    outcome: "Každý Member má jeden statement s Net balance."
+    provides_business_services: ["BS-SettlementService"]

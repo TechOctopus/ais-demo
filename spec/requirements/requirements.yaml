@@ -1,0 +1,143 @@
+# Requirements výrezu CH-01. Zdroj: idea.md, CONTEXT.md, pravidlá projektu, motivačný model B-01.
+requirements:
+  - id: "R-01"
+    title: "Autorizácia Tokenu v reálnom čase cez eMSP"
+    statement: >
+      Keď CPO požiada Hub o Authorization Tokenu, Hub musí najprv požiadať eMSP,
+      ktorý Token vydal, o odpoveď v reálnom čase a jeho odpoveď vrátiť CPO.
+    rationale: "Overenie v reálnom čase zachytí Token zablokovaný pred pár minútami."
+    source_goals: ["G-BetterChargeAccess", "G-OneCommonCard"]
+    source_model_requirements: ["MR-NoNeedToKnowProvider"]
+    owner: "BA-Hub"
+    priority: "must"
+    status: "approved"   # schválil tím 2026-11-17
+    realized_by: ["BS-AuthorizationService", "AS-HubService", "AS-AuthorizationService"]
+    acceptance_scenarios: ["SC-01-01", "SC-01-02", "SC-01-03"]
+
+  - id: "R-02"
+    title: "Whitelist ako záloha pri nedostupnom eMSP"
+    statement: >
+      Ak eMSP neodpovie včas, Hub rozhodne podľa Whitelistu, ktorý mu eMSP vopred poslal.
+      Token, ktorý na Whiteliste nie je, Hub odmietne.
+    rationale: "Driveri môžu nabíjať aj pri výpadku backendu eMSP."
+    source_goals: ["G-BetterChargeAccess"]
+    owner: "BA-Hub"
+    priority: "must"
+    status: "approved"   # schválil tím 2026-11-17
+    realized_by: ["AS-HubService"]
+    acceptance_scenarios: ["SC-02-01", "SC-02-02"]
+
+  - id: "R-03"
+    title: "Blokovanie Roaming sessions pozastaveného Membera"
+    statement: >
+      Hub nesmie autorizovať Roaming session, ak je dotknutý Member v stave Suspension.
+    rationale: "Suspension blokuje Roaming sessions, kým Member nezaplatí Net balance."
+    source_goals: ["G-IncreaseRevenue"]
+    owner: "BA-Finance"
+    priority: "must"
+    status: "approved"   # schválil tím 2026-11-17
+    realized_by: ["AS-HubService"]
+    acceptance_scenarios: ["SC-03-01"]
+
+  - id: "R-04"
+    title: "Validácia CDR"
+    statement: >
+      Hub prijme CDR iba vtedy, ak Tariff version v CDR je verzia platná pri štarte
+      Charging session, energia je väčšia ako 0 a trvanie session je zmysluplné.
+      Neplatný CDR odmietne s uvedením porušených pravidiel.
+    rationale: "Do Settlement smú vstúpiť iba overené CDR (idea.md – Charging session, krok 6)."
+    source_goals: ["G-IncreaseRevenue"]
+    source_model_requirements: ["MR-AgreementProfitability"]
+    owner: "BA-Hub"
+    priority: "must"
+    status: "approved"   # schválil tím 2026-11-17
+    realized_by: ["BS-MemberCommunicationService", "AS-HubService"]
+    acceptance_scenarios: ["SC-04-01", "SC-04-02", "SC-04-03", "SC-04-04"]
+
+  - id: "R-05"
+    title: "Limit 60 dní a neskoré CDR"
+    statement: >
+      Hub odmietne CDR k session staršej ako 60 dní. CDR, ktorý príde po uzavretí mesiaca,
+      zaradí do nasledujúceho Settlement.
+    rationale: "pravidlá projektu – dôsledky."
+    source_goals: ["G-IncreaseRevenue"]
+    owner: "BA-Finance"
+    priority: "must"
+    status: "approved"   # schválil tím 2026-11-17
+    realized_by: ["AS-HubService"]
+    acceptance_scenarios: ["SC-05-01", "SC-05-02"]
+
+  - id: "R-06"
+    title: "Mesačný Settlement s jedným Net balance pre Membera"
+    statement: >
+      Pri uzavretí mesiaca Hub zneguje všetky pohľadávky z platných CDR a pre každého Membera
+      vytvorí jeden Settlement statement s jeho Net balance.
+    rationale: "Hub je clearing house; eMSP nedostáva faktúru od každého CPO."
+    source_goals: ["G-IncreaseRevenue"]
+    source_model_requirements: ["MR-EaseOfIntegration"]
+    owner: "BA-Finance"
+    priority: "must"
+    status: "approved"   # schválil tím 2026-11-17
+    realized_by: ["BS-SettlementService", "AS-HubService"]
+    acceptance_scenarios: ["SC-06-01", "SC-06-02"]
+
+  - id: "R-07"
+    title: "Hub fee podľa hub agreement"
+    statement: >
+      Za každý platný CDR Roaming session Hub účtuje eMSP Hub fee podľa jeho hub agreement
+      (pevná suma alebo percento z ceny CDR).
+    rationale: "pravidlá projektu a 0004 – individuálne zmluvy, Hub fee účtuje eMSP."
+    source_goals: ["G-IncreaseRevenue"]
+    source_model_requirements: ["MR-AgreementProfitability"]
+    owner: "BA-Finance"
+    priority: "must"
+    status: "approved"   # schválil tím 2026-11-17
+    realized_by: ["AS-HubService"]
+    acceptance_scenarios: ["SC-06-01"]
+
+  - id: "R-08"
+    title: "Oddelenie údajov Hubu a OneKey card unit"
+    statement: >
+      Hub pozná o Driveroch iba Token. Tokeny OneKey card overuje Identity Service OneKey card unit
+      rovnakým rozhraním ako ostatných eMSP; Hub nemá prístup k jej zákazníckym údajom.
+    rationale: "Hub je GDPR processor, card unit controller; konflikt záujmov."
+    source_goals: ["G-OneCommonCard"]
+    owner: "BA-OneKeyCardUnit"
+    priority: "must"
+    status: "approved"   # schválil tím 2026-11-17
+    realized_by: ["AS-AuthorizationService"]
+    acceptance_scenarios: ["SC-01-03"]
+
+constraints:
+  - id: "C-01"
+    statement: "Hub komunikuje iba s backendmi Members v štýle OCPI; nikdy nie s nabíjačkami (OCPP sa nepoužíva)."
+    source: "pravidlá projektu"
+    owner: "BA-Hub"
+    status: "approved"   # schválil tím 2026-11-17
+  - id: "C-02"
+    statement: "Hub neukladá mená ani kontakty Driverov iných eMSP – iba Token a CDR."
+    source: "pravidlá projektu, idea.md – Data and GDPR"
+    owner: "BA-OneKeyCardUnit"
+    status: "approved"   # schválil tím 2026-11-17
+  - id: "C-03"
+    statement: "Mimo rozsahu výrezu: Dispute, Security deposit, rezervácie, Plug & Charge, iné krajiny."
+    source: "idea.md – Out of scope; rozhodnutie o rozsahu prototypu"
+    owner: "BA-Hub"
+    status: "approved"   # schválil tím 2026-11-17
+
+open_questions:
+  - id: "OQ-01"
+    question: "Koľko času má eMSP na odpoveď v reálnom čase, kým Hub použije Whitelist?"
+    owner: "BA-Hub"
+    blocks: ["R-02"]
+    status: "closed"
+  - id: "OQ-02"
+    question: "Čo znamená „zmysluplné trvanie“ session pri validácii CDR?"
+    owner: "BA-Hub"
+    blocks: ["R-04"]
+    status: "closed"
+  - id: "OQ-03"
+    question: "Blokuje Suspension Membera iba jeho Tokeny (rola eMSP), alebo aj sessions na jeho nabíjačkách (rola CPO)?"
+    owner: "BA-Finance"
+    blocks: ["R-03"]
+    status: "closed"

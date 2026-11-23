@@ -1,0 +1,60 @@
+interactions:
+  - id: "INT-01"
+    consumer: "AC-MemberBackend (rola CPO)"
+    provider: "AC-HubService"
+    interface: "AI-HubAPI"
+    uses_application_service: "AS-HubService"
+    information: ["DO-Token", "DO-AuthorizationRecord"]
+    communication_style: "synchronous HTTP request/response (OCPI štýl, pravidlá projektu)"
+    requirements: ["R-01", "R-02", "R-03"]
+    model_connector: 165
+
+  - id: "INT-02"
+    consumer: "AC-HubService"
+    provider: "AC-MemberBackend (rola eMSP)"
+    interface: "AI-MemberBackendAPI"
+    uses_application_service: "eMSP real-time authorization"
+    information: ["DO-Token"]
+    communication_style: "synchronous HTTP s časovým limitom (OQ-01)"
+    requirements: ["R-01", "R-02"]
+    model_connector: 164
+
+  - id: "INT-03"
+    consumer: "AC-HubService"
+    provider: "AC-IdentityService"
+    interface: "AI-IdentityAPI"
+    uses_application_service: "AS-AuthorizationService"
+    information: ["DO-Token"]
+    communication_style: "synchronous HTTP s časovým limitom – rovnaký tvar ako INT-02 (R-08)"
+    requirements: ["R-01", "R-08"]
+    model_connector: 163
+
+  - id: "INT-04"
+    consumer: "AC-MemberBackend (rola eMSP)"
+    provider: "AC-HubService"
+    interface: "AI-HubAPI"
+    uses_application_service: "AS-HubService"
+    information: ["DO-Whitelist"]
+    communication_style: "synchronous HTTP (eMSP pošle celý Whitelist)"
+    requirements: ["R-02"]
+    model_connector: 165
+
+  - id: "INT-05"
+    consumer: "AC-MemberBackend (rola CPO)"
+    provider: "AC-HubService"
+    interface: "AI-HubAPI"
+    uses_application_service: "AS-HubService"
+    information: ["DO-TariffVersion", "DO-CDR"]
+    communication_style: "synchronous HTTP"
+    requirements: ["R-04", "R-05"]
+    model_connector: 165
+
+  - id: "INT-06"
+    consumer: "AC-MemberBackend (CPO aj eMSP)"
+    provider: "AC-HubService"
+    interface: "AI-HubAPI"
+    uses_application_service: "AS-HubService"
+    information: ["DO-SettlementStatement"]
+    communication_style: "synchronous HTTP"
+    requirements: ["R-06"]
+    model_connector: 165

@@ -1,0 +1,27 @@
+change:
+  mode: "DESIGN_CONTRACT"
+  requirement: "R-01 … R-08 (CH-01 Roaming session end-to-end)"
+  specification_baseline: "0.1.0"
+  architecture_baseline: "B-01"
+  reason: "Prvý overiteľný výrez Hubu pre Sandbox (WP-P01)."
+
+affected:
+  goals: ["G-BetterChargeAccess: unchanged", "G-OneCommonCard: unchanged", "G-IncreaseRevenue: unchanged"]
+  actors_roles: ["BA-Member: unchanged", "BA-Hub: unchanged", "BA-Finance: unchanged", "BA-OneKeyCardUnit: unchanged", "ROLE-RoamingDriver: unchanged"]
+  business_processes: ["BP-Authorization: unchanged", "BP-BridgeMembers: unchanged", "BP-SettlePayment: unchanged"]
+  business_services: ["BS-AuthorizationService: unchanged", "BS-MemberCommunicationService: unchanged", "BS-SettlementService: unchanged"]
+  application_services: ["AS-HubService: modified (nová väzba Serving → BP-Authorization, EA 414)", "AS-AuthorizationService: unchanged"]
+  application_components: ["AC-HubService: unchanged", "AC-IdentityService: unchanged", "AC-MemberBackend: unchanged (simulovaný)"]
+  interfaces_contracts: ["AI-HubAPI: new contract API-Hub 0.1.0", "AI-MemberBackendAPI / AI-IdentityAPI: new interface contract 0.1.0"]
+  data_objects:
+    - "DO-MemberPaymentClaimRecord: modified (spresnený význam)"
+    - "DO-CDR, DO-Token, DO-Whitelist, DO-TariffVersion, DO-SettlementStatement, DO-Member, DO-AuthorizationRecord: new – doplnené do modelu B-01 2026-11-17 (EA 294–300)"
+  technology_elements: ["SSW-NodeRuntime: new (ADR-P01)", "Claim Database: not used in prototype (ADR-P02)", "NODE-SandboxHubContainer: unchanged"]
+  work_packages_deliverables: ["WP-P01: new", "D-API-Hub-0.1: new", "D-HubPrototypePackage: new"]
+  decisions: ["ADR-0001, 0003 … 0007: unchanged", "ADR-P01: new (Accepted 2026-11-17)", "ADR-P02: new (Accepted 2026-11-17)"]
+  scenarios: ["SC-01-01 … SC-06-02: new (15)"]
+  tests: ["tests/*.test.ts: new (44, z toho 2 pre QR-04)", "tests/e2e/roaming-session.spec.ts: new (1)"]
+
+open_questions:
+  - "OQ-01, OQ-02, OQ-03 – uzavreté 2026-11-16 (approval.yaml)"
+  - "Nové Data Objects a väzba AS-HubService → BP-Authorization – doplnené do modelu EA 2026-11-17 (schválil tím)."

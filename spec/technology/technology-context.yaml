@@ -1,0 +1,32 @@
+technology_context:
+  status: "applicable"
+  reason: >
+    Prototyp je spustiteľný Artifact; potrebuje runtime pre Hub Service a webové rozhranie.
+    Cieľová architektúra B-01 uvádza Hub FastAPI Runtime a PostgreSQL (Claim Database).
+    Prototyp ich vedome nahrádza – nejde o zmenu cieľovej architektúry.
+
+nodes:
+  - id: "NODE-SandboxHubContainer"
+    ea_id: 267
+    name: "Sandbox Hub Container"
+    note: "Prototyp predstavuje Sandbox – testovaciu kópiu Hubu (CONTEXT.md). Lokálne beží na pracovnej stanici vývojára."
+
+system_software:
+  - id: "SSW-NodeRuntime"
+    name: "Node.js 26 LTS"
+    host_node: "NODE-SandboxHubContainer"
+    provides_services: ["TS-HubAppService"]
+    model_status: "new – v modeli je SSW-HubRuntime (Hub FastAPI Runtime, EA #142)"
+
+technology_services:
+  - id: "TS-HubAppService"
+    ea_id: 140
+    used_by: ["AC-HubService", "AC-IdentityService", "AC-MemberBackend (simulátor)"]
+
+persistence:
+  status: "in-memory"
+  note: "Claim Database (PostgreSQL, EA #161) sa v prototype nepoužíva; stav sa pri reštarte stratí."
+
+constraints:
+  - "Bez Docker a cloud platformy – nevyžaduje sa (SDD template kap. 14)."
+  - "Webové rozhranie je statický build servovaný tým istým procesom (jeden Artifact)."

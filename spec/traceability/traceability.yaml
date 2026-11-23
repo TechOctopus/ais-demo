@@ -1,0 +1,50 @@
+# Traceability CH-01: Goal → Requirement → proces → služba → komponent → scenár → contract → test
+traces:
+  - { from: "G-BetterChargeAccess", to: "R-01", meaning: "Driver nabije u ľubovoľného Membera, ak jeho eMSP Token potvrdí." }
+  - { from: "G-OneCommonCard", to: "R-08", meaning: "Karta OneKey funguje v Hube rovnako ako karty Members." }
+  - { from: "G-BetterChargeAccess", to: "R-02", meaning: "Výpadok eMSP nezastaví nabíjanie." }
+  - { from: "G-IncreaseRevenue", to: "R-06", meaning: "Settlement je zdrojom Hub fee." }
+  - { from: "G-IncreaseRevenue", to: "R-07", meaning: "Hub fee podľa hub agreement." }
+  - { from: "MR-AgreementProfitability", to: "R-04", meaning: "Do vyúčtovania vstupujú iba overené CDR." }
+
+  - { from: "R-01", to: "BP-Authorization", meaning: "Requirement určuje správanie procesu 1.1 Authorization." }
+  - { from: "R-04", to: "BP-BridgeMembers", meaning: "Validácia CDR je krokom 1.2 Bridge Providers." }
+  - { from: "R-06", to: "BP-SettlePayment", meaning: "Netting je krokom 1.3 Settle Payment." }
+
+  - { from: "BP-Authorization", to: "BS-AuthorizationService", meaning: "Proces realizuje službu (EA konektor 241)." }
+  - { from: "BP-BridgeMembers", to: "BS-MemberCommunicationService", meaning: "EA konektor 244." }
+  - { from: "BP-SettlePayment", to: "BS-SettlementService", meaning: "EA konektor 245." }
+
+  - { from: "AS-HubService", to: "BP-Authorization", meaning: "Application Service slúži procesu – smerovanie autorizácie a Whitelist (EA 414, doplnené 2026-11-17)." }
+  - { from: "AS-HubService", to: "BP-BridgeMembers", meaning: "Application Service slúži procesu (EA 134)." }
+  - { from: "AS-HubService", to: "BP-SettlePayment", meaning: "EA 135." }
+  - { from: "AS-AuthorizationService", to: "BP-Authorization", meaning: "EA 132." }
+  - { from: "AC-HubService", to: "AS-HubService", meaning: "Component realizuje službu (EA 130)." }
+  - { from: "AC-IdentityService", to: "AS-AuthorizationService", meaning: "EA 129." }
+
+  - { from: "R-01", to: "SC-01-01", meaning: "Pozitívny scenár." }
+  - { from: "R-01", to: "SC-01-02", meaning: "Negatívny: blokovaný Token (BR-01)." }
+  - { from: "R-08", to: "SC-01-03", meaning: "OneKey card cez Identity Service, bez osobných údajov." }
+  - { from: "R-01", to: "SC-01-04", meaning: "Negatívny: nie Roaming session (BR-11)." }
+  - { from: "R-02", to: "SC-02-01", meaning: "Pozitívny Whitelist." }
+  - { from: "R-02", to: "SC-02-02", meaning: "Negatívny Whitelist." }
+  - { from: "R-03", to: "SC-03-01", meaning: "Negatívny: Suspension." }
+  - { from: "R-04", to: "SC-04-01", meaning: "Pozitívny CDR." }
+  - { from: "R-04", to: "SC-04-02", meaning: "Negatívny: Tariff version (BR-04)." }
+  - { from: "R-04", to: "SC-04-03", meaning: "Negatívny: energia (BR-05)." }
+  - { from: "R-04", to: "SC-04-04", meaning: "Negatívny: trvanie (BR-05)." }
+  - { from: "R-05", to: "SC-05-01", meaning: "Negatívny: 60 dní (BR-06)." }
+  - { from: "R-05", to: "SC-05-02", meaning: "Neskorý CDR do ďalšieho mesiaca (BR-07)." }
+  - { from: "R-06", to: "SC-06-01", meaning: "Netting a invariant BR-09." }
+  - { from: "R-06", to: "SC-06-02", meaning: "Negatívny: opakované uzavretie." }
+
+  - { from: "SC-01-01..SC-03-01", to: "API-Hub.authorizeToken", meaning: "Contract vyjadruje result, source a reason každého scenára." }
+  - { from: "SC-04-01..SC-05-02", to: "API-Hub.submitCdr", meaning: "201 alebo 422 s violations[].rule = BR-xx." }
+  - { from: "SC-06-01..SC-06-02", to: "API-Hub.closeSettlementPeriod", meaning: "SettlementResult alebo 409." }
+
+  - { from: "API-Hub.authorizeToken", to: "tests/authorization.test.ts", meaning: "Contract a acceptance testy US-01 (13 testov)." }
+  - { from: "API-Hub.submitCdr", to: "tests/cdr.test.ts", meaning: "Contract a acceptance testy CDR (11 testov)." }
+  - { from: "API-Hub.closeSettlementPeriod", to: "tests/settlement.test.ts", meaning: "Settlement a invarianty (3 testy)." }
+  - { from: "AR-01..AR-03", to: "tests/architecture.test.ts", meaning: "Component boundaries a pokrytie 13 operácií contractu." }
+  - { from: "BSC-01", to: "tests/e2e/roaming-session.spec.ts", meaning: "Celý scenár cez webové rozhranie v prehliadači Edge." }
+  - { from: "ART-HubPrototypePackage", to: "reports/screenshots/", meaning: "Deployment evidence – spustený Artifact." }

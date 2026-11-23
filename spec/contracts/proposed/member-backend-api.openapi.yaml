@@ -1,0 +1,34 @@
+openapi: 3.1.0
+info:
+  title: eMSP real-time authorization (AI-MemberBackendAPI EA #130, AI-IdentityAPI EA #125)
+  version: 0.1.0
+  description: >
+    Rozhranie, ktoré Hub volá na backende eMSP (Member Backend alebo Identity Service OneKey card unit).
+    Rovnaký tvar pre všetkých eMSP (R-08). Stav: proposed. Odpovede podľa OCPI AllowedType.
+paths:
+  /tokens/{tokenUid}/authorize:
+    post:
+      operationId: emspAuthorizeToken
+      parameters:
+        - { name: tokenUid, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [locationId]
+              properties:
+                locationId: { type: string }
+      responses:
+        '200':
+          description: Odpoveď eMSP
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [allowed]
+                properties:
+                  allowed: { type: string, enum: [ALLOWED, BLOCKED, EXPIRED, NO_CREDIT, NOT_ALLOWED] }
+        '404':
+          description: eMSP Token nepozná

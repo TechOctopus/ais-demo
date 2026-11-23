@@ -1,0 +1,54 @@
+application_components:
+  - id: "AC-HubService"
+    ea_id: 85
+    name: "Hub Service"
+    responsibility: >
+      Smeruje Authorization medzi CPO a eMSP, uchováva Whitelisty a Tariff versions,
+      overuje CDR a počíta mesačný Settlement.
+    provides_services: ["AS-HubService"]
+    interfaces: ["AI-HubAPI"]
+    uses_services:
+      - "AS-AuthorizationService"          # Tokeny OneKey card (cez AI-IdentityAPI)
+      - "Member eMSP authorization"         # cez AI-MemberBackendAPI
+    owns_data_objects:
+      - "DO-Member"
+      - "DO-Whitelist"
+      - "DO-TariffVersion"
+      - "DO-AuthorizationRecord"
+      - "DO-CDR"
+      - "DO-MemberPaymentClaimRecord"
+      - "DO-SettlementStatement"
+    allowed_dependencies:
+      - "AC-IdentityService (iba cez AI-IdentityAPI)"
+      - "AC-MemberBackend (iba cez AI-MemberBackendAPI)"
+    requirements: ["R-01", "R-02", "R-03", "R-04", "R-05", "R-06", "R-07"]
+
+  - id: "AC-IdentityService"
+    ea_id: 104
+    name: "Identity Service"
+    responsibility: "Za OneKey card unit (eMSP) rozhoduje o platnosti Tokenov OneKey card."
+    provides_services: ["AS-AuthorizationService"]
+    interfaces: ["AI-IdentityAPI"]
+    owns_data_objects: ["DO-DriverRecord"]
+    allowed_dependencies: ["AC-IdentityStorage"]
+    forbidden_dependencies: ["AC-HubService – Identity Service nesmie čítať údaje Hubu a Hub nesmie čítať DO-DriverRecord"]
+    requirements: ["R-08"]
+
+  - id: "AC-MemberBackend"
+    ea_id: 127
+    name: "External Provider Service"
+    responsibility: "Externý backend Membera. V prototype ho nahrádza simulátor (CPO aj eMSP rola)."
+    interfaces: ["AI-MemberBackendAPI"]
+    external: true
+    requirements: ["R-01", "R-02", "R-04"]
+
+architecture_rules:
+  - id: "AR-01"
+    rule: "Hub nesmie pristupovať k DO-DriverRecord ani k inému úložisku Identity Service; komunikuje iba cez AI-IdentityAPI."
+    source: "pravidlá projektu, R-08"
+  - id: "AR-02"
+    rule: "Hub komunikuje s External Provider Service iba cez AI-MemberBackendAPI (OCPI štýl), nie priamo s nabíjačkou."
+    source: "pravidlá projektu, C-01"
+  - id: "AR-03"
+    rule: "Members pristupujú k Hubu iba cez AI-HubAPI."
+    source: "B-01 Application Cooperation TO-BE"
